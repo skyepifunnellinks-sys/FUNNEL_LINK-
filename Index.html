@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funnel Link</title>
+<style>
+:root {
+ --bg: #ffffff;
+ --glass: rgba(255,255,255,.78);
+ --text: #243246;
+ --muted: #718096;
+ --blue: #397fd0;
+ --border: rgba(120,145,175,.28);
+ --radius: 20px;
+}
+ #fl-contact-overlay[hidden] {
+ display: none !important;
+ }
+* { box-sizing: border-box; }
+html {
+ scroll-behavior: smooth;
+ color-scheme: light;
+}
+body {
+ margin: 0;
+ min-height: 100vh;
+ font: 15px/1.5 Arial, Helvetica, sans-serif;
+ color: var(--text);
+ background:
+ radial-gradient(ellipse at 5% 0%, #dcecff, transparent 42%),
+ radial-gradient(ellipse at 95% 30%, #e3e8f2, transparent 40%),
+ linear-gradient(145deg, #fff, #f1f4f8 55%, #e4eaf2);
+}
+button, input, textarea { font: inherit; } button { cursor: pointer; }
+button, input, textarea {
+ border: 1px solid var(--border);
+ border-radius: 11px;
+ padding: 10px;
+}
+button {
+ color: #31445c;
+ background: rgba(255,255,255,.88);
+}
+button:hover { background: #e5effb; }
+input, textarea {
+ width: 100%;
+ background: white;
+ color: var(--text);
+}
+a { color: inherit; }
+.topbar {
+ position: sticky;
+ top: 0;
+ z-index: 20;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 10px;
+ padding: 12px;
+ background: rgba(255,255,255,.88);
+ border-bottom: 1px solid var(--border);
+ backdrop-filter: blur(18px);
+}
+.brand {
+ font-weight: 900;
+ color: var(--blue);
+ white-space: nowrap;
+}
+#clock {
+ font-size: 12px; color: var(--muted);
+}
+#visitsBtn {
+ font-weight: bold;
+ color: var(--blue);
+ white-space: nowrap;
+}
+.logo {
+ display: block;
+ width: 120px;
+ max-width: 30%;
+ height: auto;
+ margin: 12px auto 0;
+ object-fit: contain;
+}
+/* Centered, swipeable channel carousel */
+.channel-wrap {
+ display: grid;
+ grid-template-columns: 44px minmax(0,1fr) 44px;
+ align-items: center;
+ gap: 8px;
+ width: min(100%, 850px);
+ margin: 15px auto;
+ padding: 0 12px;
+}
+.channel-arrow {
+ font-size: 25px;
+ color: var(--blue);
+}
+#channels {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ min-height: 64px;
+ overflow: hidden; touch-action: pan-y;
+ position: relative;
+}
+.channel-title {
+ display: none;
+ max-width: 100%;
+ border: 0;
+ background: transparent;
+ box-shadow: none;
+ text-align: center;
+ white-space: nowrap;
+ font-size: clamp(23px, 5vw, 36px);
+ font-weight: 800;
+ color: #397fd0;
+ animation: appear .18s ease-out;
+}
+.channel-title.active { display: block; }
+@keyframes appear {
+ from { opacity: .35; transform: translateY(4px); }
+ to { opacity: 1; transform: translateY(0); }
+}
+main {
+ width: min(100%, 1000px);
+ margin: auto;
+ padding: 8px 14px 40px;
+}
+.card, .panel, .embed-card {
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ background: var(--glass);
+ backdrop-filter: blur(18px);
+ box-shadow: 0 12px 35px #8295ad17;
+}
+.card { width: 100%;
+ max-width: 560px;
+ margin: 12px auto;
+ padding: 18px;
+ text-align: center;
+}
+.panel, .embed-card {
+ padding: 15px;
+ margin: 12px 0;
+}
+#mediaBox {
+ position: relative;
+ width: min(100%, 330px);
+ aspect-ratio: 1;
+ margin: 16px auto;
+ overflow: hidden;
+ border-radius: 20px;
+ border: 2px solid #8ab9ed;
+ background: #e7f0fc;
+}
+#img {
+ position: absolute;
+ inset: 0;
+ width: 100%;
+ height: 100%;
+ object-fit: cover;
+}
+#qr {
+ display: none;
+ position: absolute;
+ inset: 0;
+ background: white;
+ align-items: center;
+ justify-content: center;
+} #qr img {
+ width: 100%;
+ height: 100%;
+ object-fit: contain;
+}
+.muted { color: var(--muted); }
+.profile-hash { color: var(--blue); }
+.profile-actions {
+ display: flex;
+ flex-wrap: wrap;
+ justify-content: center;
+ gap: 8px;
+ margin-top: 12px;
+}
+.btn {
+ display: inline-block;
+ width: min(100%, 230px);
+ padding: 11px 14px;
+ border-radius: 11px;
+ text-decoration: none;
+ font-weight: 700;
+}
+.primary {
+ background: linear-gradient(120deg, #398df0, #2868c5);
+ color: white;
+ border: 0;
+}
+.secondary {
+ background: linear-gradient(120deg, #aab7c7, #718096);
+ color: white;
+ border: 0;
+}
+#visitsView {
+ display: none; }
+#visitsView.open { display: block; }
+#visitList, #interactionLog {
+ max-height: 280px;
+ overflow: auto;
+ overflow-wrap: anywhere;
+ padding-left: 20px;
+ font-size: 13px;
+ color: var(--muted);
+}
+.log-entry {
+ padding: 7px 0;
+ border-bottom: 1px solid var(--border);
+}
+#swipeRail {
+ position: fixed;
+ z-index: 25;
+ right: 0;
+ top: 25%;
+ height: 50%;
+ width: 20px;
+ border-radius: 15px 0 0 15px;
+ background: linear-gradient(180deg,#c4d8f0bb,#759dcebb,#c4d8f0bb);
+ border: 1px solid #ffffffb0;
+ touch-action: pan-y;
+}
+#swipeRail::after {
+ content: "⋮";
+ position: absolute;
+ left: 4px;
+ top: 45%;
+ color: white;
+ font-size: 19px;
+} #interactiveView {
+ display: none;
+ position: fixed;
+ inset: 0;
+ z-index: 40;
+ overflow: auto;
+ padding: 18px;
+ background: linear-gradient(160deg,#fff,#eef3f9 55%,#dce6f2);
+ overscroll-behavior: contain;
+}
+#interactiveView.open { display: block; }
+.interactive-head {
+ position: sticky;
+ top: -18px;
+ z-index: 2;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 10px;
+ padding: 12px 0;
+ background: rgba(255,255,255,.94);
+ backdrop-filter: blur(15px);
+}
+.embed-frame {
+ width: 100%;
+ aspect-ratio: 16/9;
+ border: 0;
+ border-radius: 14px;
+ background: #e9eef5;
+}
+.settingsIcon{ width: 45px;
+}
+#settingsOverlay, #loginOverlay {
+ display: none; position: fixed;
+ inset: 0;
+ z-index: 50;
+ overflow: auto;
+ padding: 18px;
+ background: #26374c66;
+ backdrop-filter: blur(12px);
+}
+.dialog {
+ max-width: 720px;
+ margin: 20px auto;
+ padding: 18px;
+ background: #f7f9fc;
+ border: 1px solid var(--border);
+ border-radius: 18px;
+}
+.dialog-head {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+}
+.settings-grid {
+ display: grid;
+ grid-template-columns: repeat(2,minmax(0,1fr));
+ gap: 12px;
+}
+.field { display: grid; gap: 5px; }
+.field label { font-size: 13px; color: #52657b; }
+.field.full { grid-column: 1/-1; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.notice { font-size: 12px; color: var(--muted); }
+body.visual .topbar,
+body.visual .logo,
+body.visual .channel-wrap, body.visual main { display: none; }
+@media (max-width: 650px) {
+ .topbar { flex-wrap: wrap; }
+ #clock { display: none; }
+ .settings-grid { grid-template-columns: 1fr; }
+ .field.full { grid-column: auto; }
+ main { padding-inline: 9px; }
+ .card { padding: 14px; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <img width="45px" minwidth="15px ; id="settingsIcon"
+src="Settings_icon.png" alt="Funnel Link logo">
+ <div id="clock"></div>
+<!-- FUNNEL LINK HASHTAG SEARCH -->
+<style>
+.fl-search {
+ position: relative;
+ width: min(92%, 620px);
+ margin: 18px auto;
+ z-index: 30;
+ font-family: Arial, sans-serif;
+}
+.fl-search-box {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ padding: 5px 14px;
+ border: 1px solid #d8dee8;
+ border-radius: 28px;
+ background: rgba(255,255,255,.96);
+ box-shadow: 0 3px 12px rgba(40,60,90,.09);
+ transition: box-shadow .2s, border-radius .2s;
+} .fl-search-box:focus-within {
+ box-shadow: 0 4px 18px rgba(45,105,190,.18);
+ border-color: #9dbce8;
+}
+.fl-search-icon {
+ font-size: 20px;
+ color: #6682a6;
+}
+#flHashtagSearch {
+ flex: 1;
+ min-width: 0;
+ padding: 12px 0;
+ border: 0;
+ outline: 0;
+ background: transparent;
+ color: #26364b;
+ font-size: 16px;
+}
+#flHashtagSearch::placeholder {
+ color: #8794a6;
+}
+.fl-search-clear {
+ display: none;
+ padding: 5px 9px;
+ border: 0;
+ background: transparent;
+ color: #68788e;
+ font-size: 18px;
+}
+.fl-search-results {
+ display: none;
+ position: absolute;
+ top: calc(100% + 6px);
+ left: 0; right: 0;
+ max-height: 380px;
+ overflow-y: auto;
+ padding: 6px;
+ border: 1px solid #e0e6ef;
+ border-radius: 18px;
+ background: rgba(255,255,255,.98);
+ box-shadow: 0 12px 35px rgba(35,55,85,.16);
+}
+.fl-search-results.open {
+ display: block;
+}
+.fl-result-heading {
+ padding: 10px 12px 6px;
+ color: #8491a4;
+ font-size: 11px;
+ font-weight: 700;
+ letter-spacing: .08em;
+ text-transform: uppercase;
+}
+.fl-result {
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ width: 100%;
+ padding: 12px;
+ border: 0;
+ border-radius: 12px;
+ background: transparent;
+ text-align: left;
+ cursor: pointer;
+}
+.fl-result:hover,
+.fl-result:focus-visible {
+ outline: 0;
+ background: #edf4ff; }
+.fl-result-icon {
+ display: grid;
+ place-items: center;
+ flex: 0 0 38px;
+ height: 38px;
+ border-radius: 12px;
+ background: #e9f1fd;
+ color: #3978c8;
+ font-size: 18px;
+}
+.fl-result-info {
+ flex: 1;
+ min-width: 0;
+}
+.fl-result-title {
+ color: #26364b;
+ font-size: 14px;
+ font-weight: 700;
+ overflow-wrap: anywhere;
+}
+.fl-result-detail {
+ margin-top: 3px;
+ color: #7b8798;
+ font-size: 12px;
+ overflow-wrap: anywhere;
+}
+.fl-result-tag {
+ color: #3978c8;
+ font-size: 12px;
+ white-space: nowrap;
+}
+.fl-no-results {
+ padding: 20px 14px; color: #77859a;
+ text-align: center;
+ font-size: 13px;
+}
+.fl-search-footer {
+ padding: 9px 12px;
+ border-top: 1px solid #edf0f5;
+ color: #8491a4;
+ font-size: 11px;
+}
+<style>
+ #fl-contact-overlay {
+ position: fixed;
+ inset: 0;
+ z-index: 99999;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ padding: 18px;
+ background: rgba(0, 0, 0, 0.58);
+ backdrop-filter: blur(12px);
+ -webkit-backdrop-filter: blur(12px);
+ font-family: Arial, sans-serif;
+ }
+ #fl-contact-overlay[hidden] {
+ display: none !important;
+ }
+ .fl-contact-card {
+ position: relative;
+ width: 100%;
+ max-width: 410px;
+ padding: 30px 24px 24px;
+ color: #20252c;
+ background: rgba(255, 255, 255, 0.92);
+ border: 1px solid rgba(255, 255, 255, 0.85);
+ border-radius: 25px;
+ box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28); box-sizing: border-box;
+ animation: flContactEnter 0.3s ease-out;
+ }
+ @keyframes flContactEnter {
+ from { opacity: 0; transform: translateY(14px) scale(.98); }
+ to { opacity: 1; transform: translateY(0) scale(1); }
+ }
+ .fl-contact-close {
+ position: absolute;
+ top: 12px;
+ right: 14px;
+ width: 35px;
+ height: 35px;
+ border: 0;
+ border-radius: 50%;
+ background: #eceff3;
+ color: #333;
+ font-size: 24px;
+ cursor: pointer;
+ }
+ .fl-contact-logo {
+ width: 54px;
+ height: 54px;
+ display: grid;
+ place-items: center;
+ margin: 0 auto 14px;
+ border-radius: 17px;
+ color: white;
+ background: linear-gradient(135deg, #58b7ff, #1765db);
+ font-size: 27px;
+ font-weight: bold;
+ }
+ .fl-contact-card h2 {
+ margin: 0 0 9px;
+ text-align: center;
+ font-size: 25px; letter-spacing: -0.6px;
+ }
+ .fl-contact-description {
+ margin: 0 0 23px;
+ text-align: center;
+ color: #667085;
+ font-size: 14px;
+ line-height: 1.55;
+ }
+ .fl-contact-field {
+ margin-bottom: 16px;
+ }
+ .fl-contact-field label {
+ display: block;
+ margin-bottom: 7px;
+ font-size: 13px;
+ font-weight: 700;
+ }
+ .fl-contact-field input {
+ width: 100%;
+ min-height: 48px;
+ padding: 12px 14px;
+ box-sizing: border-box;
+ border: 1px solid #d9dee7;
+ border-radius: 12px;
+ outline: none;
+ background: rgba(255, 255, 255, 0.9);
+ color: #20252c;
+ font-size: 15px;
+ }
+ .fl-contact-field input:focus {
+ border-color: #3289ef;
+ box-shadow: 0 0 0 3px rgba(50, 137, 239, 0.14);
+ } .fl-contact-consent {
+ display: flex;
+ align-items: flex-start;
+ gap: 9px;
+ margin: 17px 0;
+ color: #626c7a;
+ font-size: 12px;
+ line-height: 1.5;
+ }
+ .fl-contact-consent input {
+ margin-top: 3px;
+ flex-shrink: 0;
+ }
+ .fl-contact-submit {
+ width: 100%;
+ min-height: 49px;
+ border: 0;
+ border-radius: 13px;
+ color: white;
+ background: linear-gradient(100deg, #2589ef, #1559cb);
+ font-size: 15px;
+ font-weight: 700;
+ cursor: pointer;
+ transition: filter .2s, transform .2s;
+ }
+ .fl-contact-submit:hover {
+ filter: brightness(1.08);
+ }
+ .fl-contact-submit:active {
+ transform: scale(.99);
+ }
+ .fl-contact-cancel {
+ display: block;
+ margin: 13px auto 0;
+ padding: 7px 12px; border: 0;
+ background: transparent;
+ color: #6c7582;
+ cursor: pointer;
+ font-size: 13px;
+ }
+ #fl-contact-status {
+ margin-top: 13px;
+ text-align: center;
+ font-size: 13px;
+ line-height: 1.5;
+ }
+ #fl-contact-status:empty {
+ display: none;
+ }
+ @media (max-width: 420px) {
+ .fl-contact-card {
+ padding: 28px 19px 21px;
+ }
+ }
+@media (max-width: 480px) {
+ .fl-search { width: 94%; }
+ .fl-result-tag { display: none; }
+}
+ @media (max-width: 480px){
+ .fl-search { width: 75%; 
+  
+ }
+</style>
+<div id="fl-contact-overlay" role="dialog"
+ aria-modal="true" aria-labelledby="fl-contact-title">
+ <section class="fl-contact-card">
+ <button type="button" class="fl-contact-close"
+ id="fl-contact-close" aria-label="Close form">
+ &times;
+ </button>
+ <div class="fl-contact-logo" aria-hidden="true">F</div> <h2 id="fl-contact-title">Connect with Funnel Link</h2>
+ <p class="fl-contact-description">
+ Add your contact information to stay connected.
+ Your details will only be used as described in our privacy policy.
+ </p>
+ <form id="fl-contact-form">
+ <div class="fl-contact-field">
+ <label for="fl-contact-email">Email address</label>
+ <input id="fl-contact-email" name="email"
+ type="email" placeholder="you@example.com"
+ autocomplete="email" required>
+ </div>
+ <div class="fl-contact-field">
+ <label for="fl-contact-phone">Phone number</label>
+ <input id="fl-contact-phone" name="phone"
+ type="tel" placeholder="+1 555 123 4567"
+ autocomplete="tel" minlength="7" maxlength="25"
+ required>
+ </div>
+ <label class="fl-contact-consent">
+ <input type="checkbox" id="fl-contact-consent" required>
+ <span>
+ I agree to submit my contact details and understand how
+ they will be used. I can withdraw consent where applicable.
+ </span>
+ </label>
+ <button class="fl-contact-submit" type="submit">
+ Submit Contact Information
+ </button>
+ <button class="fl-contact-cancel" type="button"
+ id="fl-contact-cancel">
+ Maybe later
+ </button> <div id="fl-contact-status" role="status"
+ aria-live="polite"></div>
+ </form>
+ </section>
+</div>
+<div id="fl-contact-overlay" role="dialog"
+ aria-modal="true" aria-labelledby="fl-contact-title">
+<div class="fl-search" id="flSearch">
+ <div class="fl-search-box">
+ <span class="fl-search-icon" aria-hidden="true">⌕</span>
+ <input
+ id="flHashtagSearch"
+ type="search"
+ placeholder="Search Funnel Link hashtags..."
+ autocomplete="off"
+ aria-label="Search Funnel Link hashtags, profiles and channels"
+ aria-expanded="false"
+ aria-controls="flSearchResults"
+ >
+ <button
+ class="fl-search-clear"
+ id="flSearchClear"
+ type="button"
+ aria-label="Clear search"
+ >×</button>
+ </div>
+ <div
+ class="fl-search-results"
+ id="flSearchResults"
+ role="listbox"
+ aria-label="Search suggestions"
+ ></div>
+</div>
+<script>
+(() => {
+ "use strict"; const input = document.getElementById("flHashtagSearch");
+ const results = document.getElementById("flSearchResults");
+ const clear = document.getElementById("flSearchClear");
+ const root = document.getElementById("flSearch");
+ /*
+ ADD YOUR REAL PUBLIC PROFILES AND HASHTAGS HERE.
+ Each item needs a title, hashtag, type and URL.
+ */
+ const defaultItems = [
+ {
+ title: "Web Links",
+ hashtag: "#Web_Links",
+ type: "Channel",
+ url: "#"
+ },
+ {
+ title: "User Links",
+ hashtag: "#User_Links",
+ type: "Channel",
+ url: "#"
+ },
+ {
+ title: "Video Links",
+ hashtag: "#Video_Links",
+ type: "Channel",
+ url: "#"
+ },
+ {
+ title: "Radio Links",
+ hashtag: "#Radio_Links",
+ type: "Channel",
+ url: "#"
+ },
+ {
+ title: "Podcast Links",
+ hashtag: "#Podcast_Links",
+ type: "Channel",
+ url: "#"
+ }, {
+ title: "Game Links",
+ hashtag: "#Game_Links",
+ type: "Channel",
+ url: "#"
+ },
+ {
+ title: "Sponsor Links",
+ hashtag: "#Sponsor_Links",
+ type: "Channel",
+ url: "#"
+ },
+ {
+ title: "Map Links",
+ hashtag: "#Map_Links",
+ type: "Channel",
+ url: "https://googleMaps"
+ },
+ {
+ title: "Web Links",
+ hashtag: "#GitHub",
+ type: "Example",
+ url: "https://github.com"
+ },
+ {
+ title: "Video Links",
+ hashtag: "#YouTube",
+ type: "Example",
+ url: "https://youtube.com"
+ }
+ ];
+ function safeURL(value) {
+ if (!value || value === "#") return "#";
+ try {
+ const url = new URL(value, window.location.href);
+ if (
+ url.protocol === "https:" || url.protocol === "http:" ||
+ (url.origin === window.location.origin &&
+ url.protocol === window.location.protocol)
+ ) {
+ return url.href;
+ }
+ } catch (_) {}
+ return "#";
+ }
+ function getItems() {
+ let items = [...defaultItems];
+ /*
+ Automatically include channels configured in the existing
+ Funnel Link settings, if those settings are available.
+ */
+ try {
+ const saved = JSON.parse(localStorage.getItem("fl_settings"));
+ if (saved && Array.isArray(saved.channels)) {
+ const configured = saved.channels.map(channel => ({
+ title: channel.name || "Untitled channel",
+ hashtag: channel.hash || (
+ "#" + String(channel.name || "channel")
+ .replace(/\s+/g, "_")
+ ),
+ type: "Channel",
+ url: channel.url || "#"
+ }));
+ items = [...configured, ...items];
+ }
+ } catch (_) {}
+ /*
+ Optional public search data:
+ window.FUNNEL_LINK_SEARCH_ITEMS = [
+ {title:"Example Profile", hashtag:"#Example", type:"Profile", url:"https://example.com"}
+ ];
+ */
+ if (Array.isArray(window.FUNNEL_LINK_SEARCH_ITEMS)) {
+ items = [...window.FUNNEL_LINK_SEARCH_ITEMS, ...items];
+ }
+ const seen = new Set();
+ return items.filter(item => {
+ const key = [
+ item.title,
+ item.hashtag,
+ item.url
+ ].join("|").toLowerCase();
+ if (seen.has(key)) return false;
+ seen.add(key);
+ return true;
+ });
+ }
+ function closeResults() {
+ results.classList.remove("open");
+ input.setAttribute("aria-expanded", "false");
+ }
+ function renderResults() {
+ const query = input.value.trim().toLowerCase();
+ clear.style.display = query ? "block" : "none";
+ if (!query) {
+ closeResults();
+ results.replaceChildren();
+ return;
+ }
+ const normalized = query.startsWith("#")
+ ? query.slice(1)
+ : query; const matches = getItems()
+ .filter(item => {
+ const searchable = [
+ item.title,
+ item.hashtag,
+ item.type
+ ].join(" ").toLowerCase();
+ return searchable.includes(query) ||
+ searchable.includes(normalized);
+ })
+ .slice(0, 12);
+ results.replaceChildren();
+ results.classList.add("open");
+ input.setAttribute("aria-expanded", "true");
+ const heading = document.createElement("div");
+ heading.className = "fl-result-heading";
+ heading.textContent = "Funnel Link results";
+ results.appendChild(heading);
+ if (!matches.length) {
+ const empty = document.createElement("div");
+ empty.className = "fl-no-results";
+ empty.textContent = "No matches found. Try another hashtag or
+channel.";
+ results.appendChild(empty);
+ return;
+ }
+ matches.forEach(item => {
+ const button = document.createElement("button");
+ button.type = "button";
+ button.className = "fl-result";
+ button.setAttribute("role", "option");
+ const icon = document.createElement("span");
+ icon.className = "fl-result-icon"; icon.textContent = item.type === "Profile" ? "◉" :
+ item.type === "Channel" ? "#" : "↗";
+ const info = document.createElement("span");
+ info.className = "fl-result-info";
+ const title = document.createElement("span");
+ title.className = "fl-result-title";
+ title.textContent = item.title || "Untitled";
+ const detail = document.createElement("span");
+ detail.className = "fl-result-detail";
+ detail.textContent = item.hashtag || "";
+ info.append(title, document.createElement("br"), detail);
+ const type = document.createElement("span");
+ type.className = "fl-result-tag";
+ type.textContent = item.type || "Link";
+ button.append(icon, info, type);
+ button.addEventListener("click", () => {
+ const url = safeURL(item.url);
+ closeResults();
+ if (url === "#") {
+ /*
+ If the existing page has a matching channel, select it.
+ */
+ try {
+ const saved = JSON.parse(localStorage.getItem("fl_settings"));
+ const channels = saved?.channels || [];
+ const index = channels.findIndex(channel =>
+ channel.name === item.title
+ );
+ if (index >= 0) {
+ const channelButton = document.querySelector( `[data-channel="${index}"]`
+ );
+ if (channelButton) {
+ channelButton.click();
+ channelButton.scrollIntoView({
+ behavior: "smooth",
+ block: "center"
+ });
+ return;
+ }
+ }
+ } catch (_) {}
+ input.value = item.hashtag || item.title || "";
+ return;
+ }
+ if (new URL(url).origin === window.location.origin) {
+ window.location.href = url;
+ } else {
+ window.open(url, "_blank", "noopener,noreferrer");
+ }
+ });
+ results.appendChild(button);
+ });
+ const footer = document.createElement("div");
+ footer.className = "fl-search-footer";
+ footer.textContent = `${matches.length} suggestion${matches.length ===
+1 ? "" : "s"}`;
+ results.appendChild(footer);
+ }
+ input.addEventListener("input", renderResults);
+ input.addEventListener("keydown", event => {
+ if (event.key === "Escape") {
+ closeResults(); input.blur();
+ }
+ if (event.key === "Enter") {
+ const first = results.querySelector(".fl-result");
+ if (first) first.click();
+ }
+ if (event.key === "ArrowDown") {
+ const first = results.querySelector(".fl-result");
+ if (first) {
+ event.preventDefault();
+ first.focus();
+ }
+ }
+ });
+ clear.addEventListener("click", () => {
+ input.value = "";
+ renderResults();
+ input.focus();
+ });
+ document.addEventListener("click", event => {
+ if (!root.contains(event.target)) closeResults();
+ });
+})();
+</script>
+<!-- END FUNNEL LINK HASHTAG SEARCH -->
+ <button id="loginBtn">Login</button>
+</header>
+<img class="logo" src="Neon_Glass_Funnel_Link_Emblem.png" alt="Funnel Link
+logo">
+<nav class="channel-wrap" aria-label="Channel carousel">
+ <button class="channel-arrow" id="prevChannel" aria-label="Previous
+channel">‹</button>
+ <div id="channels" aria-live="polite"></div> <button class="channel-arrow" id="nextChannel" aria-label="Next
+channel">›</button>
+</nav>
+<main>
+ <section class="card" id="profileCard">
+ <button id="visitsBtn">Visits: <span
+id="visitCount">0</span></button>
+ <div id="mediaBox" title="Double-click to show QR code">
+ <img id="img" src="https://picsum.photos/500" alt="Profile image">
+ <div id="qr"></div>
+ </div>
+ <h2 id="name">Your Profile</h2>
+ <p class="muted" id="tagline">Your links, channels and community in
+one place.</p>
+ <div class="profile-hash" id="profileHash">#YourFunnel</div>
+ <div class="profile-actions">
+ <a class="btn primary" id="primaryLink" href="https://example.com"
+target="_blank" rel="noopener">Visit Website</a>
+ <a class="btn secondary" id="secondaryLink"
+href="https://instagram.com" target="_blank" rel="noopener">Social
+Profile</a>
+ </div>
+ </section>
+ <section class="panel" id="visitsView">
+ <div class="dialog-head">
+ <h2>Visits</h2>
+ <button id="closeVisits">Close</button>
+ </div>
+ <p class="muted">Visits recorded by this browser.</p>
+ <ol id="visitList"></ol>
+ <button id="exportVisits">Export visits CSV</button>
+ <hr>
+ <h3>Interaction Log</h3>
+ <p class="notice">Records page interactions while this page is open.
+This browser-only log is not shared with other visitors.</p> <div id="interactionLog"></div>
+ <div class="actions">
+ <button id="exportLog">Export interaction log CSV</button>
+ <button id="clearLog">Clear local log</button>
+ </div>
+ </section>
+</main>
+<div id="swipeRail" aria-label="Swipe up to open interactive mode"></div>
+<section id="interactiveView">
+ <div class="interactive-head">
+ <strong>Funnel Link Interactive Mode</strong>
+ <button id="exitInteractive">Close ×</button>
+ </div>
+ <p class="muted">Swipe up or scroll to explore channels, downlines and
+embedded links.</p>
+ <section class="embed-card">
+ <h3>Current Channel</h3>
+ <div id="currentChannelContent"></div>
+ </section>
+ <section class="embed-card">
+ <h3>User Channels</h3>
+ <div id="userChannels"></div>
+ </section>
+ <section class="embed-card">
+ <h3>Downlines</h3>
+ <div id="downlines"></div>
+ </section>
+ <section class="embed-card">
+ <h3>Embedded Link Viewer</h3>
+ <label for="embedUrl">YouTube, Vimeo, Google Drive or another
+link</label>
+ <input id="embedUrl" type="url" placeholder="https://...">
+ <button id="loadEmbed">Load link</button> <div id="embedResult"></div>
+ </section>
+ <section class="embed-card">
+ <h3>Visit Activity</h3>
+ <div id="interactiveVisitCount"></div>
+ <button id="openVisitsFromInteractive">View visits and log</button>
+ </section>
+</section>
+<section id="settingsOverlay">
+ <div class="dialog">
+ <div class="dialog-head">
+ <h2>Profile Settings</h2>
+ <button data-close="settingsOverlay">Close</button>
+ </div>
+ <div class="settings-grid">
+ <div class="field">
+ <label for="setName">Profile name</label>
+ <input id="setName">
+ </div>
+ <div class="field">
+ <label for="setHash">Profile hashtag</label>
+ <input id="setHash">
+ </div>
+ <div class="field full">
+ <label for="setImage">Profile image URL</label>
+ <input id="setImage" placeholder="https://...">
+ </div>
+ <div class="field full">
+ <label for="setBackground">Background image URL</label>
+ <input id="setBackground" placeholder="https://...">
+ </div>
+ <div class="field">
+ <label for="setPrimaryText">Primary button label</label>
+ <input id="setPrimaryText">
+ </div>
+ <div class="field">
+ <label for="setPrimaryUrl">Primary button URL</label> <input id="setPrimaryUrl">
+ </div>
+ <div class="field">
+ <label for="setSecondaryText">Secondary button label</label>
+ <input id="setSecondaryText">
+ </div>
+ <div class="field">
+ <label for="setSecondaryUrl">Secondary button URL</label>
+ <input id="setSecondaryUrl">
+ </div>
+ <div class="field">
+ <label for="setTransparency">Card transparency</label>
+ <input id="setTransparency" type="range" min=".1" max="1"
+step=".05">
+ </div>
+ <div class="field">
+ <label for="setTagline">Profile description</label>
+ <input id="setTagline">
+ </div>
+ <div class="field full">
+ <label for="setChannels">Channels (one per line: Name | URL |
+#hashtag)</label>
+ <textarea id="setChannels" rows="6"></textarea>
+ </div>
+ </div>
+ <div class="actions">
+ <button class="primary" id="saveSettings">Save settings</button>
+ <button id="resetSettings">Restore defaults</button>
+ <button id="logoutBtn">Logout</button>
+ </div>
+ <p class="notice">This demo saves profile settings in the current
+browser. It does not provide secure authentication or shared database
+storage.</p>
+ </div>
+</section>
+<section id="loginOverlay">
+ <div class="dialog">
+ <div class="dialog-head"> <h2>Demo Login</h2>
+ <button data-close="loginOverlay">Close</button>
+ </div>
+ <p>Enter a username to use interactive mode. This is not secure
+authentication.</p>
+ <input id="loginName" placeholder="Username">
+ <div class="actions">
+ <button class="primary" id="doLogin">Continue</button>
+ </div>
+ </div>
+</section>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+ const overlay = document.getElementById("fl-contact-overlay");
+ if (overlay) {
+ overlay.hidden = false;
+ }
+});
+</script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const defaults = {
+ name: "Your Profile",
+ hash: "#YourFunnel",
+ image: "https://picsum.photos/500",
+ background: "",
+ primaryText: "Visit Website",
+ primaryUrl: "https://example.com",
+ secondaryText: "Social Profile",
+ secondaryUrl: "https://instagram.com",
+ transparency: 0.78,
+ tagline: "Your links, channels and community in one place.", channels: [
+ {name:"Web",url:"https://example.com",hash:"#Web"},
+ {name:"Video",url:"https://www.youtube.com",hash:"#Video"},
+ {name:"Drive",url:"https://drive.google.com",hash:"#Drive"},
+ {name:"GitHub",url:"https://github.com",hash:"#GitHub"},
+ {name:"Community",url:"https://discord.com",hash:"#Community"}
+ ]
+};
+function readJSON(key, fallback) {
+ try {
+ const value = JSON.parse(localStorage.getItem(key));
+ return value ?? JSON.parse(JSON.stringify(fallback));
+ } catch {
+ return JSON.parse(JSON.stringify(fallback));
+ }
+}
+function writeJSON(key, value) {
+ try { localStorage.setItem(key, JSON.stringify(value)); }
+ catch (error) { console.warn("Local storage unavailable", error); }
+}
+function safeUrl(value) {
+ try {
+ const url = new URL(value);
+ return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+ } catch { return ""; }
+}
+function escapeHTML(value) {
+ return String(value ?? "").replace(/[&<>"']/g, char => ({
+ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+ })[char]);
+}
+let settings = readJSON("fl_settings", defaults);
+let visits = readJSON("fl_visits", []);
+let interactions = readJSON("fl_interactions", []);
+let activeChannel = 0; let loggedIn = localStorage.getItem("fl_logged_in") === "yes";
+let username = localStorage.getItem("fl_username") || "Guest";
+let lastScrollLog = 0;
+function logInteraction(type, detail = "") {
+ interactions.unshift({
+ time: new Date().toISOString(),
+ type,
+ detail: String(detail).slice(0, 160)
+ });
+ interactions = interactions.slice(0, 500);
+ writeJSON("fl_interactions", interactions);
+ renderLog();
+}
+function renderLog() {
+ $("interactionLog").innerHTML = interactions.slice(0, 100).map(item =>
+ `<div class="log-entry"><strong>${escapeHTML(new
+Date(item.time).toLocaleString())}</strong><br>${escapeHTML(item.type)}${i
+tem.detail ? " · " + escapeHTML(item.detail) : ""}</div>`
+ ).join("") || "No interactions recorded.";
+}
+function renderVisits() {
+ $("visitCount").textContent = visits.length;
+ $("interactiveVisitCount").textContent = "Total local visits: " +
+visits.length;
+ $("visitList").innerHTML = visits.slice(0, 100).map(item =>
+ `<li>${escapeHTML(new Date(item.time).toLocaleString())} —
+${escapeHTML(item.channel)}</li>`
+ ).join("") || "<li>No visits recorded yet.</li>";
+}
+function recordVisit() {
+ visits.unshift({
+ time: new Date().toISOString(),
+ channel: settings.channels[activeChannel]?.name || "Profile"
+ }); visits = visits.slice(0, 500);
+ writeJSON("fl_visits", visits);
+ renderVisits();
+}
+function renderChannels() {
+ const channels = settings.channels || [];
+ $("channels").innerHTML = channels.map((channel, index) =>
+ `<button class="channel-title ${index === activeChannel ? "active" :
+""}" data-channel="${index}" aria-label="Open
+${escapeHTML(channel.name)}">${escapeHTML(channel.name)}</button>`
+ ).join("");
+ $("channels").querySelectorAll("[data-channel]").forEach(button => {
+ button.addEventListener("click", () =>
+loadChannel(Number(button.dataset.channel)));
+ });
+ $("userChannels").innerHTML = channels.map((channel, index) =>
+ `<div class="embed-card"><strong>${escapeHTML(channel.name)}</strong>
+<span class="muted">${escapeHTML(channel.hash || "")}</span><br><button
+data-open-channel="${index}">Select channel</button></div>`
+ ).join("") || "No channels configured.";
+ $("userChannels").querySelectorAll("[data-open-channel]").forEach(button
+=> {
+ button.addEventListener("click", () =>
+loadChannel(Number(button.dataset.openChannel)));
+ });
+ renderCurrentChannel();
+}
+function renderCurrentChannel() {
+ const channel = settings.channels[activeChannel];
+ $("currentChannelContent").innerHTML = channel ? `<h3>${escapeHTML(channel.name)}</h3><p>${escapeHTML(channel.hash ||
+"")}</p><a class="btn primary" href="${escapeHTML(safeUrl(channel.url) ||
+"#")}" target="_blank" rel="noopener">Open channel</a>`
+ : "No channel selected.";
+ $("channels").querySelectorAll("[data-channel]").forEach((button, index)
+=> {
+ button.classList.toggle("active", index === activeChannel);
+ });
+}
+function loadChannel(index) {
+ if (!settings.channels.length) return;
+ activeChannel = (index + settings.channels.length) %
+settings.channels.length;
+ const channel = settings.channels[activeChannel];
+ $("profileHash").textContent = settings.hash + " · " + (channel.hash ||
+"");
+ renderCurrentChannel();
+ logInteraction("channel", channel.name);
+}
+function applySettings() {
+ $("name").textContent = settings.name;
+ $("profileHash").textContent = settings.hash;
+ $("tagline").textContent = settings.tagline;
+ $("img").src = safeUrl(settings.image) || defaults.image;
+ $("primaryLink").textContent = settings.primaryText;
+ $("primaryLink").href = safeUrl(settings.primaryUrl) || "#";
+ $("secondaryLink").textContent = settings.secondaryText;
+ $("secondaryLink").href = safeUrl(settings.secondaryUrl) || "#";
+ document.body.style.backgroundImage = settings.background &&
+safeUrl(settings.background)
+ ?
+`linear-gradient(#ffffff66,#e8eef5aa),url("${safeUrl(settings.background)}
+")` : "";
+ document.querySelectorAll(".card").forEach(card => {
+ card.style.background =
+`rgba(255,255,255,${Number(settings.transparency) || .78})`;
+ });
+ fillSettings();
+ renderChannels();
+}
+function fillSettings() {
+ $("setName").value = settings.name;
+ $("setHash").value = settings.hash;
+ $("setImage").value = settings.image;
+ $("setBackground").value = settings.background;
+ $("setPrimaryText").value = settings.primaryText;
+ $("setPrimaryUrl").value = settings.primaryUrl;
+ $("setSecondaryText").value = settings.secondaryText;
+ $("setSecondaryUrl").value = settings.secondaryUrl;
+ $("setTransparency").value = settings.transparency;
+ $("setTagline").value = settings.tagline;
+ $("setChannels").value = settings.channels
+ .map(channel => `${channel.name} | ${channel.url} | ${channel.hash ||
+""}`)
+ .join("\n");
+}
+function saveSettings() {
+ settings = {
+ name: $("setName").value.trim() || defaults.name,
+ hash: $("setHash").value.trim() || defaults.hash,
+ image: $("setImage").value.trim() || defaults.image,
+ background: $("setBackground").value.trim(),
+ primaryText: $("setPrimaryText").value.trim() || defaults.primaryText,
+ primaryUrl: $("setPrimaryUrl").value.trim(),
+ secondaryText: $("setSecondaryText").value.trim() ||
+defaults.secondaryText,
+ secondaryUrl: $("setSecondaryUrl").value.trim(),
+ transparency: Number($("setTransparency").value), tagline: $("setTagline").value.trim(),
+ channels: $("setChannels").value.split("\n").map(line => {
+ const [name, url, hash] = line.split("|").map(value =>
+value.trim());
+ return name ? {name, url:safeUrl(url) || "", hash:hash || ""} :
+null;
+ }).filter(Boolean)
+ };
+ activeChannel = 0;
+ writeJSON("fl_settings", settings);
+ applySettings();
+ $("settingsOverlay").style.display = "none";
+ logInteraction("settings", "saved");
+}
+function openInteractive() {
+ if (!loggedIn) {
+ $("loginOverlay").style.display = "block";
+ logInteraction("interactive", "login required");
+ return;
+ }
+ $("interactiveView").classList.add("open");
+ document.body.classList.add("visual");
+ logInteraction("mode", "opened");
+}
+function closeInteractive() {
+ $("interactiveView").classList.remove("open");
+ document.body.classList.remove("visual");
+ logInteraction("mode", "closed");
+}
+function renderDownlines() {
+ const downlines = readJSON("fl_downlines", [
+ {name:"Downline A",url:"https://example.com"},
+ {name:"Downline B",url:"https://example.com"},
+ {name:"Downline C",url:"https://example.com"}
+ ]); $("downlines").innerHTML = downlines.map(item =>
+ `<div
+class="embed-card"><strong>${escapeHTML(item.name)}</strong><br><a
+href="${escapeHTML(safeUrl(item.url) || "#")}" target="_blank"
+rel="noopener">Open profile</a></div>`
+ ).join("");
+}
+function embedFor(raw) {
+ const url = safeUrl(raw);
+ if (!url) return null;
+ const parsed = new URL(url);
+ const host = parsed.hostname.replace(/^www\./, "");
+ let src = "";
+ let title = host;
+ if (host === "youtube.com" || host === "m.youtube.com" || host ===
+"youtu.be") {
+ const id = host === "youtu.be"
+ ? parsed.pathname.slice(1)
+ : parsed.searchParams.get("v") ||
+parsed.pathname.split("/").filter(Boolean).pop();
+ if (id && /^[\w-]+$/.test(id)) src =
+"https://www.youtube-nocookie.com/embed/" + id;
+ title = "YouTube";
+ } else if (host === "vimeo.com" || host === "player.vimeo.com") {
+ const id = parsed.pathname.split("/").filter(Boolean).pop();
+ if (/^\d+$/.test(id || "")) src = "https://player.vimeo.com/video/" +
+id;
+ title = "Vimeo";
+ } else if (host === "drive.google.com") {
+ const match = url.match(/\/file\/d\/([^/]+)/);
+ if (match) src = "https://drive.google.com/file/d/" + match[1] +
+"/preview";
+ title = "Google Drive";
+ } return {url, src, title};
+}
+function loadEmbed() {
+ const data = embedFor($("embedUrl").value.trim());
+ if (!data) {
+ $("embedResult").textContent = "Enter a valid HTTP or HTTPS URL.";
+ return;
+ }
+ const openLink = `<p><a class="btn primary"
+href="${escapeHTML(data.url)}" target="_blank" rel="noopener">Open
+${escapeHTML(data.title)} in new tab</a></p>`;
+ if (data.src) {
+ $("embedResult").innerHTML =
+ `<div class="embed-card"><h3>${escapeHTML(data.title)}</h3><iframe
+class="embed-frame" src="${escapeHTML(data.src)}" allow="autoplay;
+encrypted-media; fullscreen; picture-in-picture" allowfullscreen
+loading="lazy"
+title="${escapeHTML(data.title)}"></iframe>${openLink}</div>`;
+ } else {
+ $("embedResult").innerHTML =
+ `<div class="embed-card"><p>${escapeHTML(data.title)} may block
+embedded viewing.</p>${openLink}</div>`;
+ }
+ logInteraction("embed", data.title);
+}
+function downloadCSV(filename, rows) {
+ const csv = rows.map(row =>
+ row.map(value => `"${String(value ?? "").replace(/"/g,
+'""')}"`).join(",")
+ ).join("\r\n");
+ const blob = new Blob(["\uFEFF" + csv],
+{type:"text/csv;charset=utf-8"});
+ const objectUrl = URL.createObjectURL(blob); const link = document.createElement("a");
+ link.href = objectUrl;
+ link.download = filename;
+ link.click();
+ setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+/* Buttons */
+$("settingsBtn").onclick = () => {
+ $("settingsOverlay").style.display = "block";
+ logInteraction("settings", "opened");
+};
+$("visitsBtn").onclick = () => {
+ const view = $("visitsView");
+ view.classList.toggle("open");
+ renderVisits();
+ renderLog();
+ logInteraction("visits", view.classList.contains("open") ? "opened" :
+"closed");
+};
+$("closeVisits").onclick = () => $("visitsView").classList.remove("open");
+$("prevChannel").onclick = () => loadChannel(activeChannel - 1);
+$("nextChannel").onclick = () => loadChannel(activeChannel + 1);
+$("saveSettings").onclick = saveSettings;
+$("resetSettings").onclick = () => {
+ settings = JSON.parse(JSON.stringify(defaults));
+ activeChannel = 0;
+ writeJSON("fl_settings", settings);
+ applySettings();
+ logInteraction("settings", "defaults restored");
+};
+$("loginBtn").onclick = () => {
+ $("loginOverlay").style.display = "block";
+ logInteraction("login", "opened"); };
+$("doLogin").onclick = () => {
+ const value = $("loginName").value.trim();
+ if (!value) return alert("Enter a username.");
+ username = value;
+ loggedIn = true;
+ localStorage.setItem("fl_logged_in", "yes");
+ localStorage.setItem("fl_username", username);
+ $("loginBtn").textContent = username;
+ $("loginOverlay").style.display = "none";
+ logInteraction("login", "demo login");
+};
+$("logoutBtn").onclick = () => {
+ loggedIn = false;
+ localStorage.removeItem("fl_logged_in");
+ $("loginBtn").textContent = "Login";
+ closeInteractive();
+ $("settingsOverlay").style.display = "none";
+ logInteraction("logout");
+};
+$("exitInteractive").onclick = closeInteractive;
+$("loadEmbed").onclick = loadEmbed;
+$("exportVisits").onclick = () => downloadCSV(
+ "funnel-visits.csv",
+ [["time","channel"], ...visits.map(item => [item.time,item.channel])]
+);
+$("exportLog").onclick = () => downloadCSV(
+ "funnel-interactions.csv",
+ [["time","type","detail"], ...interactions.map(item =>
+[item.time,item.type,item.detail])]
+);
+$("clearLog").onclick = () => { if (!confirm("Clear the interaction log stored in this browser?"))
+return;
+ interactions = [];
+ writeJSON("fl_interactions", interactions);
+ renderLog();
+};
+document.querySelectorAll("[data-close]").forEach(button => {
+ button.onclick = () => {
+ $(button.dataset.close).style.display = "none";
+ };
+});
+$("mediaBox").addEventListener("dblclick", () => {
+ const qr = $("qr");
+ if (qr.style.display === "flex") {
+ qr.style.display = "none";
+ return;
+ }
+ qr.replaceChildren();
+ const image = document.createElement("img");
+ image.alt = "QR code for this page";
+ image.src =
+"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+encodeURIComponent(location.href);
+ qr.appendChild(image);
+ qr.style.display = "flex";
+ qr.style.alignItems = "center";
+ qr.style.justifyContent = "center";
+ logInteraction("qr", "toggled");
+});
+/* Swipe navigation for the channel carousel */
+let channelTouchX = 0;
+let channelTouchY = 0;
+$("channels").addEventListener("touchstart", event => { channelTouchX = event.changedTouches[0].clientX;
+ channelTouchY = event.changedTouches[0].clientY;
+}, {passive:true});
+$("channels").addEventListener("touchend", event => {
+ const dx = event.changedTouches[0].clientX - channelTouchX;
+ const dy = event.changedTouches[0].clientY - channelTouchY;
+ if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) {
+ loadChannel(activeChannel + (dx < 0 ? 1 : -1));
+ }
+}, {passive:true});
+/* Swipe up on the side rail opens interactive mode; swipe down closes it.
+*/
+let startY = 0;
+let startX = 0;
+$("swipeRail").addEventListener("touchstart", event => {
+ startY = event.touches[0].clientY;
+ startX = event.touches[0].clientX;
+}, {passive:true});
+$("swipeRail").addEventListener("touchend", event => {
+ const dy = event.changedTouches[0].clientY - startY;
+ const dx = event.changedTouches[0].clientX - startX;
+ if (Math.abs(dy) < 35 || Math.abs(dy) < Math.abs(dx)) return;
+ logInteraction("swipe", dy < 0 ? "up" : "down");
+ if (dy < 0) openInteractive();
+ else closeInteractive();
+}, {passive:true});
+$("swipeRail").addEventListener("wheel", event => {
+ if (event.deltaY > 25) openInteractive();
+ if (event.deltaY < -25) closeInteractive();
+}, {passive:true}); /* Background interaction tracking: does not record typed values or
+passwords. */
+document.addEventListener("pointerdown", event => {
+ const target = event.target;
+ if (target.closest("input,textarea,select")) return;
+ const x = Math.round(event.clientX);
+ const y = Math.round(event.clientY);
+ const element =
+target.closest("button,a")?.textContent?.trim().slice(0,60);
+ logInteraction("press", element || `${x},${y}`);
+}, {passive:true});
+document.addEventListener("scroll", () => {
+ const now = Date.now();
+ if (now - lastScrollLog < 1200) return;
+ lastScrollLog = now;
+ logInteraction("scroll", String(Math.round(window.scrollY)));
+}, {passive:true});
+$("interactiveView").addEventListener("scroll", () => {
+ logInteraction("interactive-scroll",
+String(Math.round($("interactiveView").scrollTop)));
+}, {passive:true});
+$("openVisitsFromInteractive").onclick = () => {
+ closeInteractive();
+ $("visitsView").classList.add("open");
+ renderVisits();
+ renderLog();
+};
+setInterval(() => {
+ $("clock").textContent = new Date().toLocaleString();
+}, 1000);
+/* Initialize page */
+$("loginBtn").textContent = loggedIn ? username : "Login"; renderDownlines();
+applySettings();
+renderVisits();
+renderLog();
+recordVisit();
+</script>
+<script>
+(() => {
+ const overlay = document.getElementById("fl-contact-overlay");
+ const form = document.getElementById("fl-contact-form");
+ const status = document.getElementById("fl-contact-status");
+ const email = document.getElementById("fl-contact-email");
+ const phone = document.getElementById("fl-contact-phone");
+ const submitButton = form.querySelector('[type="submit"]');
+ // Add your secure backend endpoint here to save submissions.
+ // Leave empty to run in demonstration mode.
+ const CONTACT_ENDPOINT = "";
+ function closeOverlay() {
+ overlay.hidden = true;
+ }
+ document.getElementById("fl-contact-close")
+ .addEventListener("click", closeOverlay);
+ document.getElementById("fl-contact-cancel")
+ .addEventListener("click", closeOverlay);
+ // Close when the visitor clicks the backdrop.
+ overlay.addEventListener("click", event => {
+ if (event.target === overlay) closeOverlay();
+ });
+ // Escape key closes the overlay.
+ document.addEventListener("keydown", event => {
+ if (event.key === "Escape" && !overlay.hidden) {
+ closeOverlay();
+ }
+ }); form.addEventListener("submit", async event => {
+ event.preventDefault();
+ status.textContent = "";
+ status.style.color = "#b42318";
+ const emailValue = email.value.trim();
+ const phoneValue = phone.value.trim();
+ const phoneDigits = phoneValue.replace(/\D/g, "");
+ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+ status.textContent = "Please enter a valid email address.";
+ email.focus();
+ return;
+ }
+ if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+ status.textContent =
+ "Please enter a phone number with 7–15 digits.";
+ phone.focus();
+ return;
+ }
+ if (!document.getElementById("fl-contact-consent").checked) {
+ status.textContent = "Please agree before submitting.";
+ return;
+ }
+ submitButton.disabled = true;
+ submitButton.textContent = "Submitting...";
+ try {
+ if (CONTACT_ENDPOINT) {
+ const response = await fetch(CONTACT_ENDPOINT, {
+ method: "POST",
+ headers: { "Content-Type": "application/json" },
+ body: JSON.stringify({
+ email: emailValue,
+ phone: phoneValue,
+ consent: true, source: "Funnel Link"
+ })
+ });
+ if (!response.ok) {
+ throw new Error("Submission failed.");
+ }
+ status.style.color = "#067647";
+ status.textContent =
+ "Thank you! Your contact information was submitted.";
+ form.reset();
+ } else {
+ // Demo mode does not save or transmit contact details.
+ status.style.color = "#9a6700";
+ status.textContent =
+ "Form validated. Connect a secure backend to save submissions.";
+ }
+ } catch (error) {
+ status.style.color = "#b42318";
+ status.textContent =
+ "We couldn't submit your details. Please try again later.";
+ } finally {
+ submitButton.disabled = false;
+ submitButton.textContent = "Submit Contact Information";
+ }
+ });
+})();
+</script>
+</body>
+</html>
