@@ -448,7 +448,67 @@ src="Settings_icon.png" alt="Funnel Link logo">
  color: #8491a4;
  font-size: 11px;
 }
-<style>
+<style>/* FUNNEL LINK — 95% SCREEN CONTACT POPUP */
+#fl-contact-overlay {
+    width: 95%;
+    height: 95%;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5vh 2.5vw !important;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+#fl-contact-overlay[hidden] {
+  display: none !important;
+}
+
+#fl-contact-overlay .fl-contact-card {
+  width: 95% !important;
+  max-width: 720px !important;
+  height: 95vh !important;
+  max-height: 95dvh !important;
+  overflow-y: auto;
+  margin: 0 auto !important;
+  padding: 30px 24px 24px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #243246;
+  border: 1px solid rgba(120, 145, 175, 0.28);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+#fl-contact-overlay .fl-contact-field input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  #fl-contact-overlay {
+    padding: 1.5vh 2vw !important;
+  }
+
+  #fl-contact-overlay .fl-contact-card {
+    width: 97% !important;
+    height: 97vh !important;
+    max-height: 97dvh !important;
+    padding: 28px 18px 20px;
+    border-radius: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #fl-contact-overlay .fl-contact-card {
+    animation: none !important;
+  }
+}
+
  #fl-contact-overlay {
  position: fixed;
  inset: 0;
@@ -683,6 +743,64 @@ main {width:min(100%,1000px);margin:auto;padding:5px 12px 35px}
 }
 .primary {background:linear-gradient(120deg,#398df0,#2868c5);color:white}
 .secondary {background:#718096;color:white}
+/* FUNNEL LINK — 95% SCREEN CONTACT POPUP */
+#fl-contact-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5vh 2.5vw !important;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+#fl-contact-overlay[hidden] {
+  display: none !important;
+}
+
+#fl-contact-overlay .fl-contact-card {
+  width: 95% !important;
+  max-width: 720px !important;
+  height: 95vh !important;
+  max-height: 95dvh !important;
+  overflow-y: auto;
+  margin: 0 auto !important;
+  padding: 30px 24px 24px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #243246;
+  border: 1px solid rgba(120, 145, 175, 0.28);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+#fl-contact-overlay .fl-contact-field input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  #fl-contact-overlay {
+    padding: 1.5vh 2vw !important;
+  }
+
+  #fl-contact-overlay .fl-contact-card {
+    width: 97% !important;
+    height: 97vh !important;
+    max-height: 97dvh !important;
+    padding: 28px 18px 20px;
+    border-radius: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #fl-contact-overlay .fl-contact-card {
+    animation: none !important;
+  }
+}
 
 </style>
 <div id="fl-contact-overlay" role="dialog"
