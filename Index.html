@@ -1,9 +1,185 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://climateclock.world/widget-v2.js" async></script>
+
+<style>
+/* Funnel Link mobile-first upgrade */
+html, body {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img, iframe, video {
+  max-width: 100%;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+.topbar .fl-search {
+  flex: 1 1 180px;
+  min-width: 0;
+  margin: 0;
+}
+
+.logo {
+  width: clamp(66px, 14vw, 120px);
+  max-width: 34vw;
+  margin: 12px auto;
+}
+
+.climate-clock-shell {
+  width: min(96%, 760px);
+  margin: 0 auto 12px;
+  padding: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255,255,255,.66);
+  backdrop-filter: blur(14px);
+}
+
+.climate-clock-shell climate-clock {
+  display: block;
+  width: 100%;
+}
+
+main {
+  width: min(96%, 1000px);
+  margin: auto;
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  padding: clamp(12px, 3vw, 20px);
+}
+
+#mediaBox {
+  width: min(72vw, 330px);
+  max-width: 100%;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+}
+
+.profile-actions .btn {
+  flex: 1 1 140px;
+  min-width: 0;
+  max-width: 230px;
+  overflow-wrap: anywhere;
+}
+
+.dialog {
+  width: min(100%, 720px);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+}
+
+button, input, textarea {
+  max-width: 100%;
+}
+
+@media(max-width:700px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: 38px minmax(0,1fr) auto;
+  }
+
+  .topbar #clock {
+    display: none;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field.full {
+    grid-column: auto;
+  }
+
+  .profile-actions {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .profile-actions .btn {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media(max-width:420px) {
+  .topbar {
+    gap: 5px;
+    padding: 6px;
+  }
+
+  .topbar #settingsIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .topbar #chatGPTBtn {
+    font-size: 12px;
+    padding: 7px;
+  }
+
+  .channel-title {
+    font-size: clamp(19px,7vw,26px);
+    white-space: normal;
+  }
+
+  .profile-actions {
+    grid-template-columns: 1fr;
+  }
+
+  #mediaBox {
+    width: min(68vw,260px);
+  }
+
+  .climate-clock-shell {
+    border-radius: 12px;
+  }
+}
+
+@media(max-height:500px) and (orientation:landscape) {
+  .logo {
+    width: 64px;
+    margin: 5px auto;
+  }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
 <title>Funnel Link</title>
 
 <style>
@@ -1944,5 +2120,181 @@ recordVisit();
   });
 })();
 </script>
+  <style>
+class FunnelLinkIntegrations {
+  constructor() {
+    this.key = "fl_integrations";
+
+    this.defaults = {
+      chatGPTUrl: "https://chatgpt.com/",
+      links: [
+        {name:"YouTube",url:"https://youtube.com"},
+        {name:"Vimeo",url:"https://vimeo.com"},
+        {name:"Google Drive",url:"https://drive.google.com"},
+        {name:"Tumblr",url:"https://tumblr.com"},
+        {name:"GitHub",url:"https://github.com"},
+        {name:"Matrix",url:"https://matrix.org"},
+        {name:"Discourse",url:"https://discourse.org"},
+        {name:"Discord",url:"https://discord.com"}
+      ]
+    };
+
+    this.load();
+    this.initialize();
+  }
+
+  load() {
+    try {
+      this.settings = {
+        ...this.defaults,
+        ...JSON.parse(
+          localStorage.getItem(this.key) || "{}"
+        )
+      };
+    } catch {
+      this.settings = JSON.parse(
+        JSON.stringify(this.defaults)
+      );
+    }
+  }
+
+  save() {
+    localStorage.setItem(
+      this.key,
+      JSON.stringify(this.settings)
+    );
+  }
+
+  validURL(value) {
+    try {
+      const url = new URL(value.trim());
+
+      return ["https:", "http:"].includes(url.protocol)
+        ? url.href
+        : "";
+    } catch {
+      return "";
+    }
+  }
+
+  openChatGPT() {
+    const url =
+      this.validURL(this.settings.chatGPTUrl) ||
+      this.defaults.chatGPTUrl;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  parseLinks(value) {
+    return value.split("\n")
+      .map(line => {
+        const [name, ...parts] = line.split("|");
+        const url = this.validURL(parts.join("|"));
+
+        return name?.trim() && url
+          ? {name:name.trim(), url}
+          : null;
+      })
+      .filter(Boolean);
+  }
+
+  renderLinks() {
+    let section =
+      document.getElementById("integrationLinksView");
+
+    if (!section) {
+      section = document.createElement("section");
+      section.id = "integrationLinksView";
+      section.className = "embed-card";
+      section.innerHTML =
+        "<h3>Connected Links</h3><div></div>";
+
+      const viewer =
+        document.getElementById("embedUrl")
+          ?.closest(".embed-card");
+
+      if (viewer) {
+        viewer.before(section);
+      }
+    }
+
+    const container = section.querySelector("div");
+    container.replaceChildren();
+
+    this.settings.links.forEach(item => {
+      const url = this.validURL(item.url);
+      if (!url) return;
+
+      const link = document.createElement("a");
+
+      link.className = "btn secondary";
+      link.textContent = item.name;
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.style.margin = "5px";
+
+      container.appendChild(link);
+    });
+  }
+
+  fillSettings() {
+    const chat =
+      document.getElementById("setChatGPTUrl");
+
+    const links =
+      document.getElementById("setIntegrationLinks");
+
+    if (chat) chat.value = this.settings.chatGPTUrl;
+
+    if (links) {
+      links.value = this.settings.links
+        .map(item => `${item.name} | ${item.url}`)
+        .join("\n");
+    }
+  }
+
+  saveSettings() {
+    this.settings.chatGPTUrl =
+      this.validURL(
+        document.getElementById("setChatGPTUrl").value
+      ) || this.defaults.chatGPTUrl;
+
+    this.settings.links = this.parseLinks(
+      document.getElementById("setIntegrationLinks").value
+    );
+
+    this.save();
+    this.renderLinks();
+  }
+
+  initialize() {
+    document.getElementById("chatGPTBtn")
+      ?.addEventListener("click", () => this.openChatGPT());
+
+    document.getElementById("saveSettings")
+      ?.addEventListener("click", () => this.saveSettings());
+
+    document.getElementById("resetSettings")
+      ?.addEventListener("click", () => {
+        this.settings = JSON.parse(
+          JSON.stringify(this.defaults)
+        );
+
+        this.save();
+        this.fillSettings();
+        this.renderLinks();
+      });
+
+    this.fillSettings();
+    this.renderLinks();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  window.funnelLinkIntegrations =
+    new FunnelLinkIntegrations();
+});
+</style>
 </body>
 </html>
